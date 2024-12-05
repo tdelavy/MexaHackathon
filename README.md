@@ -37,10 +37,9 @@ Navigate to your desired directory and clone the repository or download the proj
 cd path/to/your/project
 
 3.	Install Required Packages
-Install all dependencies listed in the requirements.txt file.
-pip install -r requirements.txt
 
-Explanation of Requirements:
+
+Explanation of packages required:
 
 •	streamlit: Framework for building interactive web applications in Python.
 •	speechrecognition: Library for performing speech recognition, enabling audio transcription.
