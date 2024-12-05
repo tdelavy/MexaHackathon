@@ -12,7 +12,7 @@ import json5
 st.set_page_config(layout="wide")
 
 # Configure the Gemini API key
-genai.configure(api_key="AIzaSyAust8AgAypl7Qi20We0iPpaPYw5r5mGRw")
+genai.configure(api_key="ADD GEMINI API KEY")
 model = genai.GenerativeModel("gemini-1.5-pro-latest")
 
 # Define the questionnaire and scoring instructions as variables
