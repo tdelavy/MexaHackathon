@@ -2,22 +2,33 @@
 
 Post-Natal Depression Analysis Prototype
 
-Overview
+Overview:
+
 The Post-Natal Depression Analysis Tool is a Streamlit-based web application designed to assist in identifying and analyzing signs of postnatal depression through audio input. Users can upload an audio recording, which is then transcribed into text, analyzed using the Edinburgh Postnatal Depression Scale (EPDS) via Google’s Generative AI (Gemini API), and accompanied by a supportive chatbot interface to provide empathetic responses and suggestions.
 
 Features:
 	
   •	Audio Upload and Transcription
-	•	Upload .wav audio files of spoken responses.
-	•	Automatically transcribe audio to text using the speech_recognition library.
-	•	EPDS-Based Analysis
+	
+ •	Upload .wav audio files of spoken responses.
+	
+ •	Automatically transcribe audio to text using the speech_recognition library.
+	
+ •	EPDS-Based Analysis
+  
   •	Analyze transcribed text based on the Edinburgh Postnatal Depression Scale (EPDS).
+  
   •	Calculate a total score (0-30) to assess the likelihood and severity of postnatal depression.
+  
   •	Identify emotions, cognitive distortions, and behavioral patterns from the transcribed text.
-	•	Supportive Chatbot Interface
+	
+ •	Supportive Chatbot Interface
+  
   •	Engage with a chatbot that provides empathetic and supportive responses based on the analysis.
-	•	Offers suggestions and encourages seeking professional help if necessary.
-	•	Note: The chatbot does not retain memory of past conversations.
+	
+ •	Offers suggestions and encourages seeking professional help if necessary.
+	
+ •	Note: The chatbot does not retain memory of past conversations.
 
 
 Installation:
