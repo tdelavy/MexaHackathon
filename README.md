@@ -147,6 +147,7 @@ Future Enhancements:
 
 
 
-Contact
+Contact:
+
 For questions about the project, please reach out to:
 	•	Email: thibaud.delavy@bluewin.ch
