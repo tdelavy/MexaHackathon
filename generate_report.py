@@ -216,6 +216,10 @@ pdf.ln(5)
 # Visualization Section
 pdf.set_font("Arial", size=12, style="B")
 pdf.cell(200, 10, clean_text_for_pdf("Results"), ln=True)
+pdf.set_font("Arial", style="BI", size=8)  # BI = Bold + Italic
+pdf.set_text_color(0, 0, 255)  # Blue color for the link
+pdf.cell(200, 10, "Click here for the EPDS questionnaire", ln=True, link="https://med.stanford.edu/content/dam/sm/ppc/documents/DBP/EDPS_text_added.pdf")
+pdf.set_text_color(0, 0, 0)
 pdf.ln(5)
 
 # Chart 1: EPDS Question Score Breakdown
@@ -282,8 +286,6 @@ pdf.ln(10)
 # Question Scores Section
 pdf.set_font("Arial", size=12, style="B")
 pdf.cell(200, 10, clean_text_for_pdf("Question Scores and Rationales"), ln=True)
-pdf.set_font("Arial", size=10, style="")
-pdf.cell(200, 10, "Click here for the EPDS questionnaire", ln=True, link="https://med.stanford.edu/content/dam/sm/ppc/documents/DBP/EDPS_text_added.pdf")
 pdf.ln(5)
 pdf.set_font("Arial", size=10)
 for line in question_scores_str.split("\n"):
