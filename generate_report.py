@@ -206,12 +206,43 @@ pdf.ln(10)
 
 # Summary Section
 pdf.set_font("Arial", size=12, style="B")
-pdf.cell(200, 10, clean_text_for_pdf("Summary of Findings"), ln=True)
+pdf.cell(200, 10, clean_text_for_pdf("EPDS Score by Gemini"), ln=True)
 pdf.ln(5)
 pdf.set_font("Arial", size=10)
 pdf.multi_cell(0, 10, clean_text_for_pdf(f"Total Score: {total_score}"))
 pdf.multi_cell(0, 10, clean_text_for_pdf(f"Interpretation: {interpretation}"))
 pdf.ln(5)
+
+# Visualization Section
+pdf.set_font("Arial", size=12, style="B")
+pdf.cell(200, 10, clean_text_for_pdf("Results"), ln=True)
+pdf.ln(5)
+
+# Chart 1: EPDS Question Score Breakdown
+try:
+    # Extract the scores from the string using regex
+    scores = [int(re.search(r"Score: (\d+)", line).group(1)) for line in question_scores_str.split("\n") if "Score" in line]
+    print(f"Debug: Scores for chart: {scores}")
+    # Calculate the total score as the sum of all scores
+    total_score_from_scores = sum(scores)
+    print(f"Debug: Total score calculated from scores: {total_score_from_scores}")
+except Exception as e:
+    print(f"Error extracting scores for chart: {e}")
+    sys.exit(1)
+
+questions = [f"Q{i}" for i in range(1, len(scores) + 1)]
+plt.figure(figsize=(8, 5))
+plt.bar(questions, scores, color="skyblue")
+plt.title("EPDS Question Scored by Gemini")
+plt.xlabel("Questions")
+plt.ylabel("Scores")
+plt.tight_layout()
+chart_path = os.path.join(user_folder_path, "EPDS_score_Gemini.png")
+plt.savefig(chart_path)
+plt.close()
+
+# Add Chart to PDF
+pdf.image(chart_path, x=40, w=120)
 
 # Emotional and Cognitive Insights Section
 pdf.set_font("Arial", size=12, style="B")
@@ -267,37 +298,6 @@ pdf.ln(5)
 pdf.set_font("Arial", size=10)
 pdf.multi_cell(0, 10, clean_text_for_pdf(full_context))
 pdf.ln(10)
-
-# Visualization Section
-pdf.set_font("Arial", size=12, style="B")
-pdf.cell(200, 10, clean_text_for_pdf("Visualizations"), ln=True)
-pdf.ln(5)
-
-# Chart 1: EPDS Question Score Breakdown
-try:
-    # Extract the scores from the string using regex
-    scores = [int(re.search(r"Score: (\d+)", line).group(1)) for line in question_scores_str.split("\n") if "Score" in line]
-    print(f"Debug: Scores for chart: {scores}")
-    # Calculate the total score as the sum of all scores
-    total_score_from_scores = sum(scores)
-    print(f"Debug: Total score calculated from scores: {total_score_from_scores}")
-except Exception as e:
-    print(f"Error extracting scores for chart: {e}")
-    sys.exit(1)
-
-questions = [f"Q{i}" for i in range(1, len(scores) + 1)]
-plt.figure(figsize=(8, 5))
-plt.bar(questions, scores, color="skyblue")
-plt.title("EPDS Question Scored by Gemini")
-plt.xlabel("Questions")
-plt.ylabel("Scores")
-plt.tight_layout()
-chart_path = os.path.join(user_folder_path, "EPDS_score_Gemini.png")
-plt.savefig(chart_path)
-plt.close()
-
-# Add Chart to PDF
-pdf.image(chart_path, x=40, w=120)
 
 # Save PDF
 output_path = os.path.join(user_folder_path, "post_natal_analysis_report.pdf")
