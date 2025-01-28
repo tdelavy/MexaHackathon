@@ -15,6 +15,8 @@ import time
 import tempfile
 import platform
 import sys
+import base64
+import io
 
 st.set_page_config(layout="wide", page_title="Analysis & Chatbot", page_icon="🤖")
 
@@ -513,15 +515,28 @@ if uploaded_file is not None:
                             json.dump(report_data, temp_json, ensure_ascii=False, indent=4)
                             temp_json_path = temp_json.name
 
-                        # Call `generate_report.py`
-                        subprocess.run(
+                        # Call `generate_report.py` and capture the output PDF bytes
+                        result = subprocess.run(
                             [sys.executable, "generate_report.py", temp_json_path],
+                            stdout=subprocess.PIPE,  # Capture standard output (PDF bytes)
+                            stderr=subprocess.PIPE,  # Capture errors (if any)
                             check=True
                         )
-			    
-                        st.info("The analysis report has been generated and saved in the 'Reports' folder.")
+
+                        # Convert the captured PDF bytes to a displayable format
+                        pdf_bytes = result.stdout  # This contains the PDF file data
+                        pdf_base64 = base64.b64encode(pdf_bytes).decode("utf-8")
+
+                        # Create an iframe to display the PDF in the Streamlit app
+                        pdf_display = f'<iframe src="data:application/pdf;base64,{pdf_base64}" width="700" height="600"></iframe>'
+                        st.markdown(pdf_display, unsafe_allow_html=True)
+
+                        st.success("The analysis report has been successfully generated and displayed.")
+                        
+                    except subprocess.CalledProcessError as e:
+                        st.error(f"Error generating the report: {e.stderr.decode()}")  # Show any errors
                     except Exception as e:
-                        st.error(f"Error generating the report: {e}")
+                        st.error(f"Unexpected error: {str(e)}")
 
                     st.session_state['chat_locked'] = True
 
