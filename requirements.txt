@@ -1,0 +1,7 @@
+fpdf
+matplotlib
+google-generativeai
+streamlit
+SpeechRecognition
+pandas
+json5
