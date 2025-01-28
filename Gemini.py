@@ -401,10 +401,17 @@ if uploaded_file is not None:
         if 'messages' not in st.session_state:
             st.session_state['messages'] = []
 
+        # Ensure the first chatbot message is always present
+        if not any(msg['content'] == "How have you been feeling about your baby and parenting recently?" for msg in st.session_state['messages']):
+            st.session_state['messages'].insert(0, {'role': 'bot', 'content': "How have you been feeling about your baby and parenting recently?"})
+
+
         # Generate a summary of the analysis at the beginning of the chatbot
         if 'summary_generated' not in st.session_state:
             # Create a prompt to send to Gemini for summary generation
             summary_prompt = f"""
+            You are a **compassionate, non-judgmental chatbot** assisting someone who has completed an assessment for postnatal depression.
+            ---
             Based on the analysis provided below:
 
             - Total Score: {total_score}
@@ -413,9 +420,18 @@ if uploaded_file is not None:
             - Cognitive Distortions Detected: {', '.join(distortions_list)}
             - Behavioral Patterns Noted: {', '.join(behaviors_list)}
 
-            Please generate a concise and brief summary in a empathetic, comprehensive and non-judgmental tone asking the user if this accurately reflects their situation.
-            Encourage the user to correct, add, or expand on any points.
+            generate a concise and brief summary in a empathetic, comprehensive and non-judgmental tone asking the user if this accurately reflects their situation. 
+
+            You should use a flexible conversation based on the five areas model of emotional distress (emotions, thoughts, behaviors, physical sensations, and environment) and the user's explanation after the analysis if there is any.
+            Make sure you ask questions in order to understand the user's situation better and shape a summary that reflects their problems back to them accurately.
+
+            Important:
+                - You should always provide a little summary for each area of the five areas model based on the user's explanation. 
+                - Maintain an understanding, non-judgmental tone.
+                - Do not provide medical diagnoses, recommandations or specific treatment. You try to understand the user's situation.
+            
             """
+# Ask flexible conversation based on the five areas model of emotional distress (emotions, thoughts, behaviors, physical sensations, and environment) and the user's explanation after the analysis if there is any.
 
             # Send the prompt to Gemini
             summary_response = model.generate_content(summary_prompt)
@@ -448,17 +464,18 @@ if uploaded_file is not None:
 
                     final_prompt = f"""
                     You're doing research on postnatal depression and have been asked to provide a response to a user who has just completed an assessment for postnatal depression.
-                    Based on the analysis summary and the following conversation:
-
+                    You're giving the user's final summary of all your understanding of the situation. Be empathetic and understanding in your response.
+                    
+                    Based on the analysis summary and the following conversation made by the user:
                     {full_context}
 
                     Generate a final, empathetic response that:
                     - Summarizes the situation based on the analysis using the patient's severity level ({interpretation}) and use the user's explanation after the analysis if there is any. 
-                    - Encourages the user to seek professional help, if necessary, in a compassionate manner in case the severity level is high.
-                    - Thanks the user for sharing their thoughts and feelings 
+                    - if some important symptoms are detected (like suicidal thougths, or harming themselves, ...), encourages the user to seek professional help. 
+                    - Thanks the user for sharing their thoughts and feelings.
 
                     Important:
-                    - Maintain an understanding, non-judgmental tone.
+                    - Maintain an comprehensive, non-judgmental tone.
                     - Do not providing medical diagnoses or specific treatment recommendations.
                     """
 
@@ -509,9 +526,29 @@ if uploaded_file is not None:
                 else:
                     # Generate a response to the user's input
                     feedback_prompt = f"""
-                    The user has provided additional feedback: "{user_message}"
-                    
-                    Do not provide support or advice at this stage. Simply acknowledge the user's input and ask clarifying questions if needed. You still have a comprehensive tone. Encourage the user to correct, add, or expand on any points. 3-4 lines max. 
+                    You are a **supportive, understanding chatbot** helping someone who is discussing their feelings about postnatal depression.  
+
+                    **User's new input:**  
+                    "{user_message}"  
+
+                    **TASK:**  
+                    - **Acknowledge** what they have said in a warm, non-judgmental way.  
+                    - **Encourage** them to clarify, correct, or expand on anything.  
+                    - **Make it conversational**, like a real human responding. You should help to user to delve deeper into their situation. Ask questions based on the user input using the five areas model of emotional distress (emotions, thoughts, behaviors, physical sensations, and environment) and the user's explanation after the analysis in order to gather more information
+                    - **DO NOT** provide solutions, advice, or medical support.  
+                    - **Limit response to 5.6 sentences max.**  
+
+                    **FORMAT EXAMPLE:**  
+                    *"Thank you for sharing that. It sounds like you’re feeling ____, and I can see why that would be difficult. I appreciate you opening up about this.
+                    These are some characteristics that are often used as identifiers for people: ethnicity, gender, sexuality, disability religion and more. Are there any important areas you would like to highlight to me?"*
+
+                    **Tips for your response:**  
+                    - Keep it **empathetic and engaging** (avoid robotic responses).   
+                    - If the user's message includes **specific concerns**, refer to them **naturally** in your response.  
+
+                    **DO NOT:**  
+                    - Use **bullet points** in your response.  
+                    - Provide **advice** or **interpret their feelings**—just reflect back in a supportive way.  
                     """
                     feedback_response = model.generate_content(feedback_prompt)
                     st.session_state['messages'].append({'role': 'bot', 'content': feedback_response.text.strip()})
