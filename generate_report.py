@@ -21,7 +21,11 @@ else:
 def clean_text_for_pdf(text):
     """
     Replace unsupported Unicode characters with their 'latin-1' equivalents or safe substitutes.
+    Also ensures UTF-8 encoding.
     """
+    if text is None:
+        return ""
+
     replacements = {
         "\u2019": "'",  # Right single quotation mark
         "\u2018": "'",  # Left single quotation mark
@@ -29,11 +33,14 @@ def clean_text_for_pdf(text):
         "\u201D": '"',  # Right double quotation mark
         "\u2013": "-",  # En dash
         "\u2014": "-",  # Em dash
-        # Add more replacements as needed
+        "\u2026": "...",  # Ellipsis
+        "\n": " "  # Convert new lines to spaces for better formatting
     }
+
     for unicode_char, replacement in replacements.items():
         text = text.replace(unicode_char, replacement)
-    return text
+
+    return text.encode("latin-1", "ignore").decode("latin-1")
 
 # Debug: Check the input JSON file path
 print(f"Debug: Input JSON file path: {sys.argv[1]}")
@@ -133,7 +140,7 @@ if full_context:
     This is the interaction between a potential post-partum depression patient and a chatbot. The following full discussion context:
     "{full_context}"
 
-    Your task is to identify possible causes (maximum 3) for postnatal depression mentioned by the user. For each cause, explain why it might contribute to depression by referencing specific statements or ideas shared by the user. Do not interpret. Only provide explanations based on the user's input.
+    Your task is to identify possible causes (maximum 3) for postnatal depression mentioned by the user. For each cause, explain why it might contribute to depression by referencing specific statements or ideas shared by the user. Do not interpret. Only provide explanations based on the user's input. Be careful, they do not necessarly suffer from depression.
 
     Return the result in the following JSON format:
     ```json
@@ -288,9 +295,11 @@ pdf.set_font("Arial", size=12, style="B")
 pdf.cell(200, 10, clean_text_for_pdf("Question Scores and Rationales"), ln=True)
 pdf.ln(5)
 pdf.set_font("Arial", size=10)
+# Debug: Check each question score before writing it into the PDF
 for line in question_scores_str.split("\n"):
-    print(f"Debug: Adding question score to PDF: {line}")
-    pdf.multi_cell(0, 10, clean_text_for_pdf(line))
+    cleaned_line = clean_text_for_pdf(line)
+    print(f"Debug: Writing to PDF -> {cleaned_line}")  # Print the processed text before writing
+    pdf.multi_cell(0, 10, cleaned_line)  # Write the cleaned text
 pdf.ln(10)
 
 # Chat Context Section
@@ -304,7 +313,7 @@ pdf.ln(10)
 # Save PDF
 output_path = os.path.join(user_folder_path, "post_natal_analysis_report.pdf")
 try:
-    pdf.output(output_path)
+    pdf.output(output_path, "F")  # Save as a binary file
     print(f"PDF report successfully generated at {output_path}")
 except Exception as e:
     print(f"Error saving PDF: {e}")
