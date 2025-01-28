@@ -5,6 +5,10 @@ from fpdf import FPDF
 import matplotlib.pyplot as plt
 import re
 import google.generativeai as genai
+import io
+import base64
+import streamlit as st
+
 
 # Initialize Gemini
 genai.configure(api_key="AIzaSyD2d-LH2uLMRQwNFBiN9AQwLpO1CgiDfRw")
@@ -312,10 +316,11 @@ pdf.set_font("Arial", size=10)
 pdf.multi_cell(0, 10, clean_text_for_pdf(full_context))
 pdf.ln(10)
 
-# Save PDF
-output_path = os.path.join(user_folder_path, "post_natal_analysis_report.pdf")
-try:
-    pdf.output(output_path, "F")  # Save as a binary file
-    print(f"PDF report successfully generated at {output_path}")
-except Exception as e:
-    print(f"Error saving PDF: {e}")
+# Create an in-memory PDF file
+pdf_buffer = io.BytesIO()
+pdf.output(pdf_buffer, "F")  # Write the PDF to memory
+pdf_buffer.seek(0)  # Move to the beginning of the file
+
+# Print the encoded PDF for Gemini.py
+sys.stdout.buffer.write(pdf_buffer.getvalue())  # Send the PDF back as raw bytes
+sys.stdout.flush()
