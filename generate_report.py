@@ -318,7 +318,7 @@ pdf.ln(10)
 
 # Create an in-memory PDF file
 pdf_buffer = io.BytesIO()
-pdf.output(pdf_buffer, "F")  # Write the PDF to memory
+pdf.output(pdf_buffer)
 pdf_buffer.seek(0)  # Move to the beginning of the file
 
 # Print the encoded PDF for Gemini.py
