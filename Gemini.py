@@ -489,16 +489,32 @@ if uploaded_file is not None:
 
                     # Save data to a temporary JSON file
                     try:
+
                         with tempfile.NamedTemporaryFile(delete=False, suffix=".json", mode="w") as temp_json:
                             json.dump(report_data, temp_json, ensure_ascii=False, indent=4)
                             temp_json_path = temp_json.name
-
-                        # Call `generate_report.py`
-                        subprocess.run(
+                        
+                        result = subprocess.run(
                             ["python", "generate_report.py", temp_json_path],
+                            capture_output=True,
+                            text=True,
                             check=True
                         )
-                        st.info("The analysis report has been generated and saved in the 'Reports' folder.")
+                        # Extract PDF path from the script's output
+                        pdf_path = result.stdout.strip()
+
+                        # Provide a download button if the file exists
+                        if os.path.exists(pdf_path):
+                            with open(pdf_path, "rb") as pdf_file:
+                                pdf_bytes = pdf_file.read()
+                                st.download_button(
+                                    label="Download the PDF Report",
+                                    data=pdf_bytes,
+                                    file_name="post_natal_analysis_report.pdf",
+                                    mime="application/pdf"
+                                )
+                        else:
+                            st.error("The report could not be found. Please try again.")
                     except Exception as e:
                         st.error(f"Error generating the report: {e}")
 

@@ -10,6 +10,13 @@ import google.generativeai as genai
 genai.configure(api_key="AIzaSyD2d-LH2uLMRQwNFBiN9AQwLpO1CgiDfRw")
 model = genai.GenerativeModel("gemini-2.0-flash-exp")
 
+# Ensure the "Reports" folder exists in the current directory
+reports_dir = "Reports"
+if not os.path.exists(reports_dir):
+    os.makedirs(reports_dir)
+    print(f"The 'Reports' folder has been created at {os.path.abspath(reports_dir)}")
+else:
+    print(f"The 'Reports' folder already exists at {os.path.abspath(reports_dir)}")
 
 def clean_text_for_pdf(text):
     """
