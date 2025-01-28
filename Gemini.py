@@ -541,7 +541,7 @@ if uploaded_file is not None:
                     subprocess.run(["xdg-open", reports_path], check=True)
 
             # Button to open the folder
-            if st.button("📁 Open User Report Folder"):
+            if st.button("📁 Generate User Report"):
                 open_folder()
 
     else:
