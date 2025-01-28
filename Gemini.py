@@ -14,6 +14,7 @@ import subprocess
 import time
 import tempfile
 import platform
+import sys
 
 st.set_page_config(layout="wide", page_title="Analysis & Chatbot", page_icon="🤖")
 
@@ -513,10 +514,11 @@ if uploaded_file is not None:
                             temp_json_path = temp_json.name
 
                         # Call `generate_report.py`
-			subprocess.run(
-			    [sys.executable, "generate_report.py", temp_json_path],
-			    check=True
-			)
+                        subprocess.run(
+                            [sys.executable, "generate_report.py", temp_json_path],
+                            check=True
+                        )
+			    
                         st.info("The analysis report has been generated and saved in the 'Reports' folder.")
                     except Exception as e:
                         st.error(f"Error generating the report: {e}")
