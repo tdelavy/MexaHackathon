@@ -86,6 +86,7 @@ if added_info:
     - Emotions
     - Cognitive Distortions
     - Behaviors
+    - Situational Context
 
     Provide the result in the following JSON format:
     ```json
@@ -93,6 +94,7 @@ if added_info:
         "emotions": ["list of emotion keywords"],
         "cognitive_distortions": ["list of cognitive distortion keywords"],
         "behaviors": ["list of behavior keywords"]
+        "Situational Context": ["list of situational context keywords"]
     }}
     ```
 
