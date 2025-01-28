@@ -2,20 +2,24 @@
 #streamlit run Gemini.py
 
 import streamlit as st
+import streamlit.components.v1 as components
 import speech_recognition as sr
 import google.generativeai as genai
 import json
 import pandas as pd 
 import re
 import json5
+import os
+import subprocess
+import time
+import tempfile
 
-st.set_page_config(layout="wide")
+st.set_page_config(layout="wide", page_title="Analysis & Chatbot", page_icon="🤖")
 
 # Configure the Gemini API key
-genai.configure(api_key="ADD GEMINI API KEY")
-model = genai.GenerativeModel("gemini-1.5-pro-latest")
+genai.configure(api_key="AIzaSyD2d-LH2uLMRQwNFBiN9AQwLpO1CgiDfRw")
 
-# Define the questionnaire and scoring instructions as variables
+# Questionnaire and scoring instructions
 questionnaire = """
 The Edinburgh Postnatal Depression Scale (EPDS) includes the following questions. Each question has four possible answers, scored from 0 to 3 based on severity:
     1. I have been able to laugh and see the funny side of things:
@@ -117,8 +121,7 @@ def analyze_text_with_prompt(input_text):
     ```
 
     **Important**:
-    - Ensure all JSON keys and string values use double quotes (`"`), not single quotes (`'`), to adhere to proper JSON formatting.
-    - Do not make interpretation.
+    - Ensure all JSON keys and string values use double quotes (`"`), not single quotes (`'`), to adhere to proper JSON formatting. 
     - Escape any double quotes inside string values with a backslash (`\\`), e.g., `He said, \\\"Hello\\\".`
     - **Avoid using apostrophes in contractions (use "cannot" instead of "can't").**
     - Do not include any additional text within the JSON code block.
@@ -214,20 +217,47 @@ def display_chat(messages, container):
                     unsafe_allow_html=True,
                 )
 
-# Initialize session state for chat messages
+def refine_recognized_text(recognized_text, user_message):
+    """
+    Combine the recognized text with user-provided additional information.
+    """
+    return f"{recognized_text.strip()} {user_message.strip()}"
+
+# Initialize the chat messages if not already done
 if 'messages' not in st.session_state:
     st.session_state['messages'] = []
 
+if 'additional_info' not in st.session_state:
+    st.session_state['additional_info'] = ""
+
+if 'analysis_result' not in st.session_state:
+    st.session_state['analysis_result'] = {}
+
+if 'explanation' not in st.session_state:
+    st.session_state['explanation'] = None  # No explanation yet
+
+if 'new_user_messages' not in st.session_state:
+    st.session_state['new_user_messages'] = []  # Will only store user inputs after analysis
+
+
 # Streamlit UI
-st.title("Post-Natal Depression Analysis")
+st.title("Post-Natal Depression 🤖")
 st.write("Upload an audio file, and this app will analyze the emotions, cognitive distortions, and behavioral patterns.")
+
+# Dropdown for Gemini model selection
+available_models = ["gemini-2.0-flash-exp", "gemini-1.5-pro"]
+selected_model = st.selectbox("Select the Gemini model to use:", available_models)
+model = genai.GenerativeModel(selected_model)
+
+if selected_model == "gemini-2.0-flash-exp":
+    st.success("Note: This model processes data significantly faster but may occasionally produce formatting errors in responses. If you experience any issues, please reload the page.")
+elif selected_model == "gemini-1.5-pro":
+    st.warning("Note: This model takes more time to process.")
 
 # File Upload Widget
 uploaded_file = st.file_uploader("Upload an audio file (.wav format)", type=["wav"])
 if uploaded_file is not None:
-    # Save the uploaded file temporarily
-    with open("uploaded_audio.wav", "wb") as f:
-        f.write(uploaded_file.read())
+    uploaded_filename = uploaded_file.name 
 
     st.info("Processing audio file...")
 
@@ -235,175 +265,267 @@ if uploaded_file is not None:
     st.markdown("---")
     
     # Process the audio file
-    recognized_text = process_audio_file("uploaded_audio.wav")
+    recognized_text = process_audio_file(uploaded_file)
 
     if recognized_text:
         st.subheader("Recognized Text")
         st.write(recognized_text)
 
         st.info("Analyzing text with Gemini...")
-        response = analyze_text_with_prompt(recognized_text)
 
-        if response and hasattr(response, 'text'):
-            try:
-                # Extract the JSON code block
-                json_match = re.search(r'```json\s*(\{[\s\S]*?\})\s*```', response.text)
-                if json_match:
-                    json_str = json_match.group(1)
-
-                    parsed_response = json5.loads(json_str)
-                    explanation = response.text[json_match.end():].strip()
-                else:
-                    st.error("Could not find JSON data in the response.")
-                    parsed_response = {}
-                    explanation = ""
-
-                # Extract individual components from the parsed response
-                emotions_list = parsed_response.get("emotions", [])
-                distortions_list = parsed_response.get("cognitive_distortions", [])
-                behaviors_list = parsed_response.get("behavioral_patterns", [])
-
-                # Extract question scores and calculate total score
-                question_scores = parsed_response.get("question_scores", {})
-                total_score = 0
-                scores_list = []
-                for q_num in range(1, 11):
-                    q_key = str(q_num)
-                    q_data = question_scores.get(q_key, {"score": 0, "rationale": "No response"})
-                    score = q_data.get("score", 0)
-                    rationale = q_data.get("rationale", "No rationale provided.")
-                    total_score += score
-                    scores_list.append({"Question": q_num, "Score": score, "Rationale": rationale})
-
-                # A horizontal line to separate sections
-                st.markdown("---")
-
-                # Display the combined analysis
-                st.subheader("Symptoms")
-
-                # Find the maximum length among the lists
-                max_length = max(len(emotions_list), len(distortions_list), len(behaviors_list))
-
-                # Pad the lists with empty strings to make them the same length
-                emotions_list += [''] * (max_length - len(emotions_list))
-                distortions_list += [''] * (max_length - len(distortions_list))
-                behaviors_list += [''] * (max_length - len(behaviors_list))
-
-                # Now create the DataFrame
-                combined_df = pd.DataFrame({
-                    'Emotions': emotions_list,
-                    'Cognitive Distortions': distortions_list,
-                    'Behavioral Patterns': behaviors_list
-                })
-
-                # Display the table
-                st.table(combined_df)
-                
-                # Display the scoring rationale table
-                st.subheader("Edinburgh Postnatal Depression Scale (EPDS): Scoring and Rationale for Responses")
-                st.markdown("[Click here to view the EPDS questionnaire](https://med.stanford.edu/content/dam/sm/ppc/documents/DBP/EDPS_text_added.pdf)")
-                scores_df = pd.DataFrame(scores_list)
-                st.table(scores_df)
-
-                # Display the total score and interpretation
-                st.subheader("Total Score / 30")
-                st.metric(label="EPDS Score", value=total_score)
-
-                # Interpretation based on the total score
-                if total_score <= 9:
-                    interpretation = "Low likelihood of postnatal depression. No immediate concerns, but continued monitoring may be appropriate."
-                elif 10 <= total_score <= 12:
-                    interpretation = "Possible mild symptoms of postnatal depression. Professional consultation recommended."
-                elif 13 <= total_score <= 30:
-                    interpretation = "High likelihood of postnatal depression. Immediate professional help is strongly advised to ensure appropriate support and treatment."                
-                st.write(f"Interpretation: {interpretation}")
-
-                # Display explanation
-                if explanation:
-                    st.subheader("Explanation")
-                    st.markdown(explanation)
-                else:
-                    st.warning("No explanation available.")
-
-                # A horizontal line to separate sections
-                st.markdown("---")
-
-                # --- Chat Interface ---
-                st.header("ChatBot")
-                chat_container = st.container()
-
-                # A horizontal line to separate sections
-                st.markdown("---")
-
-                # Initialize the chat messages if not already done
-                if 'messages' not in st.session_state:
-                    st.session_state['messages'] = []
-
-                # Generate an initial bot response to the audio input if not already done
-                if 'initial_response_generated' not in st.session_state:
-                    # Generate a bot response to the recognized text (audio input)
-                    initial_bot_response = generate_bot_response(
-                        recognized_text, 
-                        total_score, 
-                        interpretation, 
-                        emotions_list, 
-                        distortions_list, 
-                        behaviors_list
-                    )
-                    # Append the user's initial input (recognized text) and the bot's response to the conversation
-                    st.session_state['messages'].append({'role': 'user', 'content': recognized_text})
-                    st.session_state['messages'].append({'role': 'bot', 'content': initial_bot_response})
-                    st.session_state['initial_response_generated'] = True
-
-                # Display existing chat messages
-                display_chat(st.session_state['messages'], chat_container)
-
-                # Callback function for handling user input
-                def handle_user_input():
-                    user_message = st.session_state['user_input']
-                    if user_message:
-                        # Append the user's message to the conversation
-                        st.session_state['messages'].append({'role': 'user', 'content': user_message})
-
-                        # Create a conversation history for the prompt
-                        past_messages = "\n".join(
-                            f"{msg['role'].capitalize()}: {msg['content']}" for msg in st.session_state['messages']
-                        )
-
-                        # Determine severity level based on total score
-                        if total_score <= 9:
-                            severity = "low"
-                        elif 10 <= total_score <= 12:
-                            severity = "moderate"
-                        elif 13 <= total_score <= 19:
-                            severity = "moderate"
-                        else:
-                            severity = "high"
-
-                        # Generate a response from the bot
-                        bot_response = generate_bot_response(
-                            user_message,
-                            total_score,
-                            interpretation,
-                            emotions_list,
-                            distortions_list,
-                            behaviors_list
-                        )
-                        # Append the bot's response to the conversation
-                        st.session_state['messages'].append({'role': 'bot', 'content': bot_response})
-
-                        # Clear the input field
-                        st.session_state['user_input'] = ''
-
-                # Text input for the user to send a message
-                st.text_input("Type your message here:", key='user_input', on_change=handle_user_input)
-                # --- End of Chat Interface ---
-
-            except json.JSONDecodeError as e:
-                st.error(f"Could not parse the JSON data: {e}")
-                st.write("Response from the model:")
-                st.code(response.text)
+        if "analysis_result" not in st.session_state or not st.session_state['analysis_result']:
+            response = analyze_text_with_prompt(recognized_text)
+            
+            if response and hasattr(response, 'text'):
+                try:
+                    # Extract the JSON code block
+                    json_match = re.search(r'```json\s*(\{[\s\S]*?\})\s*```', response.text)
+                    if json_match:
+                        json_str = json_match.group(1)
+                        parsed_response = json5.loads(json_str)
+                        explanation = response.text[json_match.end():].strip()
+                        
+                        # Save to session state
+                        st.session_state['analysis_result'] = parsed_response
+                        st.session_state['explanation'] = explanation
+                    else:
+                        st.error("Could not find JSON data in the response.")
+                        parsed_response = {}
+                        explanation = ""
+                except json.JSONDecodeError as e:
+                    st.error(f"Could not parse the JSON data: {e}")
+                    st.write("Response from the model:")
+                    st.code(response.text)
         else:
-            st.error("No response generated by Gemini. Please try again.")
+            # If already analyzed, use the saved results
+            parsed_response = st.session_state['analysis_result']
+            explanation = st.session_state['explanation']    
+
+                        # Use the saved analysis result
+        parsed_response = st.session_state.analysis_result
+        explanation = st.session_state.explanation
+
+        # Extract individual components from the parsed response
+        emotions_list = parsed_response.get("emotions", [])
+        distortions_list = parsed_response.get("cognitive_distortions", [])
+        behaviors_list = parsed_response.get("behavioral_patterns", [])
+
+        # Extract question scores and calculate total score
+        question_scores = parsed_response.get("question_scores", {})
+        total_score = 0
+        scores_list = []
+        for q_num in range(1, 11):
+            q_key = str(q_num)
+            q_data = question_scores.get(q_key, {"score": 0, "rationale": "No response"})
+            score = q_data.get("score", 0)
+            rationale = q_data.get("rationale", "No rationale provided.")
+            total_score += score
+            scores_list.append({"Question": q_num, "Score": score, "Rationale": rationale})
+
+        # Debug: Print scores list and total score
+        print(f"Debug: Scores List: {scores_list}")
+        print(f"Debug: Calculated Total Score: {total_score}")
+
+        # Prepare question scores string
+        question_scores_str = "\n".join(
+            f"Question {q}: Score: {details['score']}, Rationale: {details['rationale']}"
+            for q, details in question_scores.items()
+        )
+
+        # Debug: Print question scores string
+        print(f"Debug: Question Scores String:\n{question_scores_str}")
+
+        # A horizontal line to separate sections
+        st.markdown("---")
+
+        # Display the combined analysis
+        st.subheader("Symptoms")
+
+        # Find the maximum length among the lists
+        max_length = max(len(emotions_list), len(distortions_list), len(behaviors_list))
+
+        # Pad the lists with empty strings to make them the same length
+        emotions_list += [''] * (max_length - len(emotions_list))
+        distortions_list += [''] * (max_length - len(distortions_list))
+        behaviors_list += [''] * (max_length - len(behaviors_list))
+
+        # Now create the DataFrame
+        combined_df = pd.DataFrame({
+            'Emotions': emotions_list,
+            'Cognitive Distortions': distortions_list,
+            'Behavioral Patterns': behaviors_list
+        })
+
+        # Display the table
+        st.table(combined_df)
+        
+        # Display the scoring rationale table
+        st.subheader("Edinburgh Postnatal Depression Scale (EPDS): Scoring and Rationale for Responses")
+        st.markdown("[Click here to view the EPDS questionnaire](https://med.stanford.edu/content/dam/sm/ppc/documents/DBP/EDPS_text_added.pdf)")
+        scores_df = pd.DataFrame(scores_list)
+        st.table(scores_df)
+
+        # Display the total score and interpretation
+        st.subheader("Total Score / 30")
+        st.metric(label="EPDS Score", value=total_score)
+
+        # Interpretation based on the total score
+        if total_score <= 9:
+            interpretation = "Low likelihood of postnatal depression. No immediate concerns, but continued monitoring may be appropriate."
+        elif 10 <= total_score <= 12:
+            interpretation = "Possible mild symptoms of postnatal depression. Professional consultation recommended."
+        elif 13 <= total_score <= 30:
+            interpretation = "High likelihood of postnatal depression. Immediate professional help is strongly advised to ensure appropriate support and treatment."                
+        st.write(f"Interpretation: {interpretation}")
+
+        # Display explanation
+        if explanation:
+            st.subheader("Explanation")
+            st.markdown(explanation)
+        else:
+            st.warning("No explanation available.")
+
+        # A horizontal line to separate sections
+        st.markdown("---")
+
+        # --- Chat Interface ---
+        st.header("ChatBot")
+        chat_container = st.container()
+
+        # A horizontal line to separate sections
+        st.markdown("---")
+
+        # Initialize the chat messages if not already done
+        if 'messages' not in st.session_state:
+            st.session_state['messages'] = []
+
+        # Generate a summary of the analysis at the beginning of the chatbot
+        if 'summary_generated' not in st.session_state:
+            # Create a prompt to send to Gemini for summary generation
+            summary_prompt = f"""
+            Based on the analysis provided below:
+
+            - Total Score: {total_score}
+            - Interpretation: {interpretation}
+            - Emotions Identified: {', '.join(emotions_list)}
+            - Cognitive Distortions Detected: {', '.join(distortions_list)}
+            - Behavioral Patterns Noted: {', '.join(behaviors_list)}
+
+            Please generate a concise and brief summary in a empathetic, comprehensive and non-judgmental tone asking the user if this accurately reflects their situation.
+            Encourage the user to correct, add, or expand on any points.
+            """
+
+            # Send the prompt to Gemini
+            summary_response = model.generate_content(summary_prompt)
+            summary_text = summary_response.text.strip()
+
+            # Append the generated summary to the messages
+            st.session_state['messages'].append({'role': 'user', 'content': recognized_text})
+            st.session_state['messages'].append({'role': 'bot', 'content': summary_text})
+            st.session_state['summary_generated'] = True
+
+        # Display existing chat messages
+        display_chat(st.session_state['messages'], chat_container)
+
+        # Callback function for handling user input
+        def handle_user_input():
+            user_message = st.session_state['user_input']
+            if user_message:
+                # Append the user's message to the conversation
+                st.session_state['messages'].append({'role': 'user', 'content': user_message})
+                st.session_state['new_user_messages'].append(user_message)
+
+                if user_message.lower() == "done":
+                    # When the user finishes providing input, send everything to Gemini
+
+                    added_info = "\n".join(st.session_state['new_user_messages'])  # Only new user messages
+
+                    full_context = "\n".join(
+                        f"{msg['role'].capitalize()}: {msg['content']}" for msg in st.session_state['messages']
+                    )
+
+                    final_prompt = f"""
+                    You're doing research on postnatal depression and have been asked to provide a response to a user who has just completed an assessment for postnatal depression.
+                    Based on the analysis summary and the following conversation:
+
+                    {full_context}
+
+                    Generate a final, empathetic response that:
+                    - Summarizes the situation based on the analysis using the patient's severity level ({interpretation}) and use the user's explanation after the analysis if there is any. 
+                    - Encourages the user to seek professional help, if necessary, in a compassionate manner in case the severity level is high.
+                    - Thanks the user for sharing their thoughts and feelings 
+
+                    Important:
+                    - Maintain an understanding, non-judgmental tone.
+                    - Do not providing medical diagnoses or specific treatment recommendations.
+                    """
+
+                    final_response = model.generate_content(final_prompt)
+                    st.session_state['messages'].append({'role': 'bot', 'content': final_response.text.strip()})
+
+                                # Lock the chat by setting the flag
+                    st.session_state['chat_locked'] = True
+
+                    question_scores_str = "\n".join(
+                        f"Question {q}: Score: {details['score']}, Rationale: {details['rationale']}"
+                        for q, details in question_scores.items()
+                    )
+
+                    # Prepare data for the report
+                    report_data = {
+                        "total_score": total_score,
+                        "interpretation": interpretation,
+                        "emotions": emotions_list,
+                        "distortions": distortions_list,
+                        "behaviors": behaviors_list,
+                        "question_scores": question_scores_str,
+                        "full_context": full_context,
+                        "added_info": added_info,  # Include added user input here
+                        "audio_filename": uploaded_filename, 
+                    }
+
+                    # Debug: Print the data being saved
+                    print(f"Debug: Report data:\n{json.dumps(report_data, indent=4)}")
+
+                    # Save data to a temporary JSON file
+                    try:
+                        with tempfile.NamedTemporaryFile(delete=False, suffix=".json", mode="w") as temp_json:
+                            json.dump(report_data, temp_json, ensure_ascii=False, indent=4)
+                            temp_json_path = temp_json.name
+
+                        # Call `generate_report.py`
+                        subprocess.run(
+                            ["python", "generate_report.py", temp_json_path],
+                            check=True
+                        )
+                        st.info("The analysis report has been generated and saved in the 'Reports' folder.")
+                    except Exception as e:
+                        st.error(f"Error generating the report: {e}")
+
+                    st.session_state['chat_locked'] = True
+
+                else:
+                    # Generate a response to the user's input
+                    feedback_prompt = f"""
+                    The user has provided additional feedback: "{user_message}"
+                    
+                    Do not provide support or advice at this stage. Simply acknowledge the user's input and ask clarifying questions if needed. You still have a comprehensive tone. Encourage the user to correct, add, or expand on any points. 3-4 lines max. 
+                    """
+                    feedback_response = model.generate_content(feedback_prompt)
+                    st.session_state['messages'].append({'role': 'bot', 'content': feedback_response.text.strip()})
+
+                # Clear the input field
+                st.session_state['user_input'] = ''
+
+        # Initialize the chat_locked flag in session state
+        if 'chat_locked' not in st.session_state:
+            st.session_state['chat_locked'] = False
+
+        # Conditional text input field
+        if not st.session_state['chat_locked']:
+            st.text_input("Type your message here (type 'Done' when finished):", key='user_input', on_change=handle_user_input)
+        else:
+            st.info("The chat has ended. Thank you for sharing your thoughts.")
+
     else:
-        st.error("Could not recognize any text from the audio. Please upload a clearer audio file.")
+        st.error("No response generated by Gemini. Please try again.")
