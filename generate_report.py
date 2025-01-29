@@ -120,11 +120,11 @@ if added_info:
             # Check if the "message" field exists
             if "message" in added_keywords:
                 print(f"Gemini response: {added_keywords['message']}")
-                added_keywords = {"emotions": [], "cognitive_distortions": [], "behaviors": []}
+                added_keywords = {"emotions": [], "cognitive_distortions": [], "behaviors": [], "Situational Context": []}
         else:
-            added_keywords = {"emotions": [], "cognitive_distortions": [], "behaviors": []}
+            added_keywords = {"emotions": [], "cognitive_distortions": [], "behaviors": [], "Situational Context": []}
     except json.JSONDecodeError:
-        added_keywords = {"emotions": [], "cognitive_distortions": [], "behaviors": []}
+        added_keywords = {"emotions": [], "cognitive_distortions": [], "behaviors": [], "Situational Context": []}
 else:
     # Default case where added_info is empty
     added_keywords = {
@@ -132,6 +132,7 @@ else:
         "emotions": [],
         "cognitive_distortions": [],
         "behaviors": [],
+        "Situational Context": []
     }
 
 # Create the user-specific folder inside "Reports"
@@ -317,13 +318,11 @@ pdf.multi_cell(0, 10, clean_text_for_pdf(full_context))
 pdf.ln(10)
 
 # Save PDF directly to memory
-pdf_buffer = io.BytesIO()
-pdf.output(pdf_buffer)  # Write PDF to memory
-pdf_buffer.seek(0)  # Move to the beginning of the file
+pdf_bytes = pdf.output(dest="S").encode("latin1")  # Save PDF as bytes
 
 # Write raw PDF bytes to stdout (DO NOT print anything else!)
 try:
-    sys.stdout.buffer.write(pdf_buffer.read())
-    sys.stdout.flush()
+    sys.stdout.buffer.write(pdf_bytes) 
+    sys.stdout.flush()  
 except Exception as e:
-    sys.stderr.write(f"Error writing PDF to stdout: {str(e)}\n")  # Print errors to stderr instead
+    sys.stderr.write(f"Error writing PDF to stdout: {str(e)}\n")  # Print errors to stderr
