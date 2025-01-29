@@ -1,4 +1,4 @@
-# Post-Natal Depression Analysis Prototype
+# Post-Natal Depression Analysis Prototype and UI interface
 
 ## MexaHackathon
 
@@ -8,7 +8,8 @@ The Post-Natal Depression Analysis Tool originated from our previous hackathon, 
 
 In this hackathon, we are taking this idea further by enhancing the chatbot with memory capabilities and structuring conversations based on the five areas model of emotional distress (emotions, thoughts, behaviors, physical sensations and environment) in order to better understand post-partum depression and create the best intervention using reports and experiences from the interaction between the user and the chatbot. By leveraging our application, we hope to better assess the needs of individuals experiencing post-natal depression and provide more effective interventions in the future.
 
-# 🔗 User Interface (Figma)
+### 🔗 User Interface (Figma)
+We have designed an interactive UI for our project using Figma. This interface represents how users will interact with the tool visually.
 👉 [Click here to explore the UI](https://tdelavy.github.io/MexaHackathon/)
 
 ### Features
