@@ -8,11 +8,13 @@ The Post-Natal Depression Analysis Tool originated from our previous hackathon, 
 
 In this hackathon, we are taking this idea further by enhancing the chatbot with memory capabilities and structuring conversations based on the five areas model of emotional distress (emotions, thoughts, behaviors, physical sensations and environment) in order to better understand post-partum depression and create the best intervention using reports and experiences from the interaction between the user and the chatbot. By leveraging our application, we hope to better assess the needs of individuals experiencing post-natal depression and provide more effective interventions in the future.
 
+-------------
 ### 🔗 User Interface (Figma)
 We have designed an interactive UI for our project using Figma. This interface represents how users will interact with the tool visually.
 
 👉 [Click here to explore the UI](https://tdelavy.github.io/MexaHackathon/)
 
+------------
 ### Features
 
 *1. Memory-Enabled Chatbot*
@@ -51,7 +53,7 @@ We have designed an interactive UI for our project using Figma. This interface r
 
 - Discussion transcript between the chatbot and the user
 
-
+-------------
 ### To use the prototype
 
 ***Launch the app from this link:***
@@ -116,6 +118,7 @@ To launch the Streamlit application locally, follow these steps:
 
 This command will start the Streamlit server and automatically open the application in your default web browser. If it doesn’t open automatically, you can access it by navigating to the URL provided in the terminal output (usually http://localhost:8501).
 
+-------------
 ### Usage
 
 ***1. Launch the Application***
@@ -162,12 +165,13 @@ When you’ve finished interacting with the chatbot and answering its questions,
 
 - Dynamic Configuration: Tailors responses according to the severity of depression indicated by the EPDS score.
   
-
-***Limitations***
+-------------
+### Limitations
 
 - Not a Replacement for Professional Help: While the chatbot provides support and suggestions, it is not a substitute for medical advice or therapy. But it will be beneficial to design and create the most appropriate intervention for these patients suffering from postpartum depression.
 
-***Future Enhancements***
+-------------
+### Future Enhancements
 
 - Improved chatbot intelligence with deeper contextual understanding
 
@@ -175,7 +179,8 @@ When you’ve finished interacting with the chatbot and answering its questions,
 
 - User Authentication in an App: Introduce user login features to secure sensitive data and personalize user experiences.
 
-***Contact***
+-------------
+### Contact
 
 For questions about the project, please reach out to:
 
