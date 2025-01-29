@@ -75,7 +75,7 @@ Navigate to the directory you want to download the project files from. Then, dow
 
 Install all dependencies listed in the requirements.txt file (still in the terminal)
 
-pip install -r requirements.txt
+	pip install -r requirements.txt
 
 
 **Explanation of Requirements**
