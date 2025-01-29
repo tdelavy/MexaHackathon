@@ -521,7 +521,8 @@ if uploaded_file is not None:
                         pdf_bytes, error_bytes = process.communicate()  # Wait for the process to finish
 
                         if process.returncode != 0:
-                            raise subprocess.CalledProcessError(process.returncode, "generate_report.py", error_bytes)
+		    	    error_message = error_bytes.decode().strip() if error_bytes else "Unknown error (stderr was empty)"
+                            raise subprocess.CalledProcessError(process.returncode, "generate_report.py", output=pdf_bytes, stderr=error_message)
 
                         # Create a download button for the generated PDF
                         st.download_button(
@@ -534,7 +535,7 @@ if uploaded_file is not None:
                         st.success("The analysis report has been successfully generated. Click the button above to download.")
 
                     except subprocess.CalledProcessError as e:
-                        st.error(f"Error generating the report: {e.stderr}")  # Now handles the case when stderr is None
+                        st.error(f"Error generating the report: {e.stderr if e.stderr else 'No error message available'}")
                     except Exception as e:
                         st.error(f"Unexpected error: {str(e)}")
 
