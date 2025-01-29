@@ -164,7 +164,14 @@ When you’ve finished interacting with the chatbot and answering its questions,
 - Resource Suggestions: Offers recommendations and encourages users to seek professional help if urgent.
 
 - Dynamic Configuration: Tailors responses according to the severity of depression indicated by the EPDS score.
-  
+
+-------------
+### Project Outcomes
+
+- FrameNet Implementation for Users: FrameNet, a structured linguistic database that maps words to semantic frames (conceptual structures representing real-world experiences), will be developed using AI. This will help identify key themes, emotions, and cognitive patterns in user responses. [📄 View FrameNet Analysis identified by Gemini](FrameNet_Gemini.pdf)
+
+- Personalized Intervention Strategies: By analyzing FrameNet data, AI will assist clinicians in designing targeted intervention strategies based on the specific challenges and emotional patterns detected. [📄 View Suggested Strategies identified by Gemini](Strategy_Gemini.pdf)
+
 -------------
 ### Limitations
 
