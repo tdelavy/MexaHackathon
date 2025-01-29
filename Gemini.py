@@ -585,7 +585,7 @@ if uploaded_file is not None:
 
         # Conditional text input field
         if not st.session_state['chat_locked']:
-            st.text_input("Type your message here (type 'Done' when finished):", key='user_input', on_change=handle_user_input)
+            st.text_input("Type your message here (enter “Done” when you’re ready to end the narration)", key='user_input', on_change=handle_user_input)
 
         else:
             st.info("The chat has ended. Thank you for sharing your thoughts.")
