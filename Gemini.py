@@ -510,33 +510,35 @@ if uploaded_file is not None:
                     print(f"Debug: Report data:\n{json.dumps(report_data, indent=4)}")
 
                     # Save data to a temporary JSON file
-                    try:
-                        with tempfile.NamedTemporaryFile(delete=False, suffix=".json", mode="w") as temp_json:
-                            json.dump(report_data, temp_json, ensure_ascii=False, indent=4)
-                            temp_json_path = temp_json.name
-
-                        # Call `generate_report.py` and capture the output PDF bytes
-                        result = subprocess.run(
-                            [sys.executable, "generate_report.py", temp_json_path],
-                            stdout=subprocess.PIPE,  # Capture standard output (PDF bytes)
-                            stderr=subprocess.PIPE,  # Capture errors (if any)
-                            check=True
-                        )
-
-                        # Convert the captured PDF bytes to a displayable format
-                        pdf_bytes = result.stdout  # This contains the PDF file data
-                        pdf_base64 = base64.b64encode(pdf_bytes).decode("utf-8")
-
-                        # Create an iframe to display the PDF in the Streamlit app
-                        pdf_display = f'<iframe src="data:application/pdf;base64,{pdf_base64}" width="700" height="600"></iframe>'
-                        st.markdown(pdf_display, unsafe_allow_html=True)
-
-                        st.success("The analysis report has been successfully generated and displayed.")
-                        
-                    except subprocess.CalledProcessError as e:
-                        st.error(f"Error generating the report: {e.stderr.decode()}")  # Show any errors
-                    except Exception as e:
-                        st.error(f"Unexpected error: {str(e)}")
+			try:
+			    with tempfile.NamedTemporaryFile(delete=False, suffix=".json", mode="w") as temp_json:
+			        json.dump(report_data, temp_json, ensure_ascii=False, indent=4)
+			        temp_json_path = temp_json.name
+			
+			    # Call `generate_report.py` and capture the output PDF bytes
+			    process = subprocess.Popen(
+			        [sys.executable, "generate_report.py", temp_json_path],
+			        stdout=subprocess.PIPE, stderr=subprocess.PIPE  # Capture both stdout (PDF) and stderr (errors)
+			    )
+			    pdf_bytes, error_bytes = process.communicate()  # Wait for the process to finish
+			
+			    if process.returncode != 0:
+			        raise subprocess.CalledProcessError(process.returncode, "generate_report.py", error_bytes)
+			
+			    # Create a download button for the generated PDF
+			    st.download_button(
+			        label="Download Report as PDF",
+			        data=pdf_bytes,  # Raw PDF bytes
+			        file_name="post_natal_analysis_report.pdf",
+			        mime="application/pdf"
+			    )
+			
+			    st.success("The analysis report has been successfully generated. Click the button above to download.")
+			
+			except subprocess.CalledProcessError as e:
+			    st.error(f"Error generating the report: {e.stderr.decode()}")  # Show any errors
+			except Exception as e:
+			    st.error(f"Unexpected error: {str(e)}")
 
                     st.session_state['chat_locked'] = True
 
