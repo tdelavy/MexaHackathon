@@ -431,6 +431,7 @@ if uploaded_file is not None:
                 - You should always provide a little summary for each area of the five areas model based on the user's explanation. 
                 - Maintain an understanding, non-judgmental tone.
                 - Do not provide medical diagnoses, recommandations or specific treatment. You try to understand the user's situation.
+		- Patient doesn't know that their responses are being assessed. Do not use or explain the assessment (neither the word).
             
             """
 
@@ -476,7 +477,7 @@ if uploaded_file is not None:
                     - Thanks the user for sharing their thoughts and feelings.
 
                     Important:
-		    - Patient doesn't know that their responses are being assessed.
+		    - Patient doesn't know that their responses are being assessed. Do not use or explain the assessment (neither the word).
                     - Maintain an comprehensive, non-judgmental tone.
                     - Do not providing medical diagnoses or specific treatment recommendations.
                     """
