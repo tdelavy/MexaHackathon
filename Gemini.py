@@ -447,8 +447,8 @@ if uploaded_file is not None:
         display_chat(st.session_state['messages'], chat_container)
 
 	full_context = "\n".join(
-                f"{msg['role'].capitalize()}: {msg['content']}" for msg in st.session_state['messages']
-        )
+		f"{msg['role'].capitalize()}: {msg['content']}" for msg in st.session_state['messages']
+	)
 
         # Callback function for handling user input
         def handle_user_input():
