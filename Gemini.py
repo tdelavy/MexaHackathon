@@ -16,7 +16,6 @@ import tempfile
 import platform
 import sys
 import base64
-import io
 
 st.set_page_config(layout="wide", page_title="Analysis & Chatbot", page_icon="🤖")
 
@@ -434,7 +433,6 @@ if uploaded_file is not None:
                 - Do not provide medical diagnoses, recommandations or specific treatment. You try to understand the user's situation.
             
             """
-# Ask flexible conversation based on the five areas model of emotional distress (emotions, thoughts, behaviors, physical sensations, and environment) and the user's explanation after the analysis if there is any.
 
             # Send the prompt to Gemini
             summary_response = model.generate_content(summary_prompt)
@@ -510,35 +508,35 @@ if uploaded_file is not None:
                     print(f"Debug: Report data:\n{json.dumps(report_data, indent=4)}")
 
                     # Save data to a temporary JSON file
-		    try:
-		      with tempfile.NamedTemporaryFile(delete=False, suffix=".json", mode="w") as temp_json:
-		          json.dump(report_data, temp_json, ensure_ascii=False, indent=4)
-		          temp_json_path = temp_json.name
-		
-		    # Call `generate_report.py` and capture the output PDF bytes
-		      process = subprocess.Popen(
-		          [sys.executable, "generate_report.py", temp_json_path],
-		          stdout=subprocess.PIPE, stderr=subprocess.PIPE  # Capture both stdout (PDF) and stderr (errors)
-		      )
-		      pdf_bytes, error_bytes = process.communicate()  # Wait for the process to finish
-		
-		      if process.returncode != 0:
-		          raise subprocess.CalledProcessError(process.returncode, "generate_report.py", error_bytes)
-		
-		    # Create a download button for the generated PDF
-		      st.download_button(
-		          label="Download Report as PDF",
-		          data=pdf_bytes,  # Raw PDF bytes
-		          file_name="post_natal_analysis_report.pdf",
-		          mime="application/pdf"
-		      )
-		
-		      st.success("The analysis report has been successfully generated. Click the button above to download.")
-		
-		    except subprocess.CalledProcessError as e:
-		      st.error(f"Error generating the report: {e.stderr.decode()}")  # Show any errors
-		    except Exception as e:
-		      st.error(f"Unexpected error: {str(e)}")
+                    try:
+                        with tempfile.NamedTemporaryFile(delete=False, suffix=".json", mode="w") as temp_json:
+                            json.dump(report_data, temp_json, ensure_ascii=False, indent=4)
+                            temp_json_path = temp_json.name
+
+                        # Call `generate_report.py` and capture the output PDF bytes
+                        process = subprocess.Popen(
+                            [sys.executable, "generate_report.py", temp_json_path],
+                            stdout=subprocess.PIPE, stderr=subprocess.PIPE  # Capture both stdout (PDF) and stderr (errors)
+                        )
+                        pdf_bytes, error_bytes = process.communicate()  # Wait for the process to finish
+
+                        if process.returncode != 0:
+                            raise subprocess.CalledProcessError(process.returncode, "generate_report.py", error_bytes)
+
+                        # Create a download button for the generated PDF
+                        st.download_button(
+                            label="Download Report as PDF",
+                            data=pdf_bytes,  # Raw PDF bytes
+                            file_name="post_natal_analysis_report.pdf",
+                            mime="application/pdf"
+                        )
+
+                        st.success("The analysis report has been successfully generated. Click the button above to download.")
+
+                    except subprocess.CalledProcessError as e:
+                        st.error(f"Error generating the report: {e.stderr.decode()}")  # Show any errors
+                    except Exception as e:
+                        st.error(f"Unexpected error: {str(e)}")
 
                     st.session_state['chat_locked'] = True
 
