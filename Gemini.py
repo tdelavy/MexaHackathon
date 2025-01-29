@@ -576,11 +576,15 @@ if uploaded_file is not None:
         else:
             st.info("The chat has ended. Thank you for sharing your thoughts.")
 
+            user_name = uploaded_filename.split("_")[1].replace(".wav", "")
+            pdf_filename = f"Post_Natal_Analysis_{user_name}.pdf"
+
             if 'pdf_bytes' in st.session_state:
+                
                 st.download_button(
                     label="Download Report as PDF",
                     data=st.session_state['pdf_bytes'],
-                    file_name="post_natal_analysis_report.pdf",
+                    file_name=pdf_filename,
                     mime="application/pdf"
                 )
                 st.success("The analysis report has been successfully generated. Click the button above to download.")
