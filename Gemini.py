@@ -446,6 +446,10 @@ if uploaded_file is not None:
         # Display existing chat messages
         display_chat(st.session_state['messages'], chat_container)
 
+	full_context = "\n".join(
+                f"{msg['role'].capitalize()}: {msg['content']}" for msg in st.session_state['messages']
+        )
+
         # Callback function for handling user input
         def handle_user_input():
             user_message = st.session_state['user_input']
@@ -458,10 +462,6 @@ if uploaded_file is not None:
                     # When the user finishes providing input, send everything to Gemini
 
                     added_info = "\n".join(st.session_state['new_user_messages'])  # Only new user messages
-
-                    full_context = "\n".join(
-                        f"{msg['role'].capitalize()}: {msg['content']}" for msg in st.session_state['messages']
-                    )
 
                     final_prompt = f"""
                     You're doing research on postnatal depression and have been asked to provide a response to a user who has just completed an assessment for postnatal depression.
@@ -476,6 +476,7 @@ if uploaded_file is not None:
                     - Thanks the user for sharing their thoughts and feelings.
 
                     Important:
+		    - Patient doesn't know that their responses are being assessed.
                     - Maintain an comprehensive, non-judgmental tone.
                     - Do not providing medical diagnoses or specific treatment recommendations.
                     """
@@ -535,29 +536,41 @@ if uploaded_file is not None:
                 else:
                     # Generate a response to the user's input
                     feedback_prompt = f"""
-                    You are a **supportive, understanding chatbot** helping someone who is discussing their feelings about postnatal depression.  
+                    You are a **supportive, understanding chatbot** helping someone who is discussing their feelings about postnatal depression.
 
-                    **User's new input:**  
+                    Your goal is to **encourage the user to share more about their feelings** in a way that feels natural and non-intrusive.  
+                    You should focus on **deepening the conversation** by **choosing one or two key areas** where the user has provided meaningful input and helping them **explore those areas further**.
+
+                    **Full conversation history:**  
+                    "{full_context}"  
+
+                    **User's latest message:**  
                     "{user_message}"  
 
                     **TASK:**  
                     - **Acknowledge** what they have said in a warm, non-judgmental way.  
-                    - **Encourage** them to clarify, correct, or expand on anything.  
-                    - **Make it conversational**, like a real human responding. You should help to user to delve deeper into their situation. Ask questions based on the user input using the five areas model of emotional distress (emotions, thoughts, behaviors, physical sensations, and environment) and the user's explanation after the analysis in order to gather more information
-                    - **DO NOT** provide solutions, advice, or medical support.  
-                    - **Limit response to 5.6 sentences max.**  
+                    - **Identify one or two key areas** (from emotions, thoughts, behaviors, physical sensations, or environment) where the user has provided meaningful input.  
+                    - **Delve deeper into those areas** by asking **only one or two carefully chosen follow-up questions** that feel natural and help the user reflect.  
+                    - If the user introduces a new topic or shifts focus, **follow their lead** and help them explore it.  
+                    - If they seem stuck, **gently prompt them with curiosity**, but avoid overwhelming them.  
+                    - **Do NOT ask random questions**—instead, focus on **understanding the user’s experience** more deeply.  
 
-                    **FORMAT EXAMPLE:**  
-                    *"Thank you for sharing that. It sounds like you’re feeling ____, and I can see why that would be difficult. I appreciate you opening up about this.
-                    These are some characteristics that are often used as identifiers for people: ethnicity, gender, sexuality, disability religion and more. Are there any important areas you would like to highlight to me?"*
+                    **Important Guidelines:**  
+                    - **Make it conversational**, like a real human responding.  
+                    - **Be empathetic** and validate their emotions before asking follow-up questions.  
+                    - **Limit response to 4-5 sentences max** to keep the exchange natural and engaging.  
 
-                    **Tips for your response:**  
-                    - Keep it **empathetic and engaging** (avoid robotic responses).   
-                    - If the user's message includes **specific concerns**, refer to them **naturally** in your response.  
+                    **EXAMPLE RESPONSE:**  
+                    *"Thank you for sharing that. It sounds like you’re feeling ____, and I can understand why that might be challenging. When you mentioned ____, it stood out to me. Could you tell me a little more about that? How does it affect you day to day?"*  
+
+                    *"You mentioned ____, and that sounds really tough. Sometimes, our thoughts in moments like these can be overwhelming. What kind of thoughts tend to come up for you when you feel this way?"*
 
                     **DO NOT:**  
                     - Use **bullet points** in your response.  
-                    - Provide **advice** or **interpret their feelings**—just reflect back in a supportive way.  
+                    - Provide **advice** or **interpret their feelings**—just reflect back and encourage them to explore.  
+                    - Ask **random questions across all five areas**—only focus on the **most relevant areas**.  
+
+                    Remember, your goal is to **help the user feel heard and understood**, and to gently guide them toward deeper self-reflection.
                     """
                     feedback_response = model.generate_content(feedback_prompt)
                     st.session_state['messages'].append({'role': 'bot', 'content': feedback_response.text.strip()})
