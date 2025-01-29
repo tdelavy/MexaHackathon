@@ -316,11 +316,14 @@ pdf.set_font("Arial", size=10)
 pdf.multi_cell(0, 10, clean_text_for_pdf(full_context))
 pdf.ln(10)
 
-# Create an in-memory PDF file
+# Save PDF directly to memory
 pdf_buffer = io.BytesIO()
-pdf.output(pdf_buffer)  # Save PDF directly to memory
+pdf.output(pdf_buffer)  # Write PDF to memory
 pdf_buffer.seek(0)  # Move to the beginning of the file
 
 # Write raw PDF bytes to stdout (DO NOT print anything else!)
-sys.stdout.buffer.write(pdf_buffer.read())
-sys.stdout.flush()
+try:
+    sys.stdout.buffer.write(pdf_buffer.read())
+    sys.stdout.flush()
+except Exception as e:
+    sys.stderr.write(f"Error writing PDF to stdout: {str(e)}\n")  # Print errors to stderr instead
