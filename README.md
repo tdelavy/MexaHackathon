@@ -1,59 +1,60 @@
-Post-Natal Depression Analysis Prototype
+# Post-Natal Depression Analysis Prototype
 
-MexaHackathon
+## MexaHackathon
 
-Overview
+### Overview
 
 The Post-Natal Depression Analysis Tool originated from our previous hackathon, where we developed a Streamlit-based web application to help identify and analyze postnatal depression through audio input. 
 
 In this hackathon, we are taking this idea further by enhancing the chatbot with memory capabilities and structuring conversations based on the five areas model of emotional distress (emotions, thoughts, behaviors, physical sensations and environment).
 
-Features
 
-Memory-Enabled Chatbot
+### Features
 
-Tracks conversation history for context-aware interactions
+*1. Memory-Enabled Chatbot*
 
-Helps the user explore specific areas of emotional distress
+- Tracks conversation history for context-aware interactions
 
-Extended Data Collection Beyond EPDS
+- Helps the user explore specific areas of emotional distress
 
-Patients can provide additional insights beyond the questionnaire
+*2. Extended Data Collection Beyond EPDS*
 
-Helps collect more comprehensive data on postnatal depression
+- Patients can provide additional insights beyond the questionnaire
 
-Automated Report Generation
+- Helps collect more comprehensive data on postnatal depression
 
-Extracts emotions, cognitive distortions, and behaviors from user responses
+*3. Automated Report Generation*
 
-Demonstrates the impact of engaging with the chatbot
+- Extracts emotions, cognitive distortions, and behaviors from user responses
 
-Highlights the extra information that would be missed with only the questionnaire
+- Demonstrates the impact of engaging with the chatbot
 
-Accessible Web Application
+- Highlights the extra information that would be missed with only the questionnaire
 
-No installation required! The prototype is available online: 
+*4. Accessible Web Application*
 
-Users can still install it manually if preferred (see instructions below)
+- No installation required! The prototype is available online: 
 
-User Response and Analysis Report Generation
+- Users can still install it manually if preferred (see instructions below)
 
-EPDS score assessed by Gemini AI
+*5. User Response and Analysis Report Generation*
 
-Emotions, cognitive distortions and behaviors identified during the analysis
+- EPDS score assessed by Gemini AI
 
-Additional insights provided by the user while conversing with the chatbot
+- Emotions, cognitive distortions and behaviors identified during the analysis
 
-Discussion transcript between the chatbot and the user
+- Additional insights provided by the user while conversing with the chatbot
 
-To use the prototype
-
-From the app:
+- Discussion transcript between the chatbot and the user
 
 
-Install in your local computer:
+### To use the prototype
 
-Prerequisites
+*From the app:*
+https://postpartumdepression.streamlit.app
+
+*Install in your local computer:*
+*Prerequisites*
 
 •	Python 3.9 or higher: Ensure Python is installed on your system. You can download it from .
 
