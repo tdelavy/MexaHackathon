@@ -90,7 +90,6 @@ if added_info:
     - Emotions
     - Cognitive Distortions
     - Behaviors
-    - Situational Context
 
     Provide the result in the following JSON format:
     ```json
@@ -98,7 +97,6 @@ if added_info:
         "emotions": ["list of emotion keywords"],
         "cognitive_distortions": ["list of cognitive distortion keywords"],
         "behaviors": ["list of behavior keywords"]
-        "Situational Context": ["list of situational context keywords"]
     }}
     ```
 
@@ -120,11 +118,11 @@ if added_info:
             # Check if the "message" field exists
             if "message" in added_keywords:
                 print(f"Gemini response: {added_keywords['message']}")
-                added_keywords = {"emotions": [], "cognitive_distortions": [], "behaviors": [], "Situational Context": []}
+                added_keywords = {"emotions": [], "cognitive_distortions": [], "behaviors": []}
         else:
-            added_keywords = {"emotions": [], "cognitive_distortions": [], "behaviors": [], "Situational Context": []}
+            added_keywords = {"emotions": [], "cognitive_distortions": [], "behaviors": []}
     except json.JSONDecodeError:
-        added_keywords = {"emotions": [], "cognitive_distortions": [], "behaviors": [], "Situational Context": []}
+        added_keywords = {"emotions": [], "cognitive_distortions": [], "behaviors": []}
 else:
     # Default case where added_info is empty
     added_keywords = {
@@ -132,7 +130,6 @@ else:
         "emotions": [],
         "cognitive_distortions": [],
         "behaviors": [],
-        "Situational Context": []
     }
 
 # Create the user-specific folder inside "Reports"
