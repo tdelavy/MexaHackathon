@@ -534,7 +534,7 @@ if uploaded_file is not None:
                         st.success("The analysis report has been successfully generated. Click the button above to download.")
 
                     except subprocess.CalledProcessError as e:
-                        st.error(f"Error generating the report: {e.stderr.decode()}")  # Show any errors
+                        st.error(f"Error generating the report: {e.stderr}")  # Now handles the case when stderr is None
                     except Exception as e:
                         st.error(f"Unexpected error: {str(e)}")
 
