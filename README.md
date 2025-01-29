@@ -6,8 +6,7 @@
 
 The Post-Natal Depression Analysis Tool originated from our previous hackathon, where we developed a Streamlit-based web application to help identify and analyze postnatal depression through audio input. 
 
-In this hackathon, we are taking this idea further by enhancing the chatbot with memory capabilities and structuring conversations based on the five areas model of emotional distress (emotions, thoughts, behaviors, physical sensations and environment).
-
+In this hackathon, we are taking this idea further by enhancing the chatbot with memory capabilities and structuring conversations based on the five areas model of emotional distress (emotions, thoughts, behaviors, physical sensations and environment) in order to better understand post-partum depression and create the best intervention using reports and experiences from the interaction between the user and the chatbot. By leveraging our application, we hope to better assess the needs of individuals experiencing post-natal depression and provide more effective interventions in the future.
 
 ### Features
 
