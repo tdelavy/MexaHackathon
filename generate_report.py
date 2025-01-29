@@ -318,10 +318,9 @@ pdf.ln(10)
 
 # Create an in-memory PDF file
 pdf_buffer = io.BytesIO()
-pdf_data = pdf.output(dest="S").encode("latin1")  # Output PDF as bytes
-pdf_buffer.write(pdf_data)  # Write the data to the in-memory buffer
-pdf_buffer.seek(0)  # Move to the beginning of the buffer
+pdf.output(pdf_buffer)  # Save PDF directly to memory
+pdf_buffer.seek(0)  # Move to the beginning of the file
 
-# Send the PDF back to Gemini.py as raw bytes
-sys.stdout.buffer.write(pdf_buffer.getvalue())
+# Write raw PDF bytes to stdout (DO NOT print anything else!)
+sys.stdout.buffer.write(pdf_buffer.read())
 sys.stdout.flush()
