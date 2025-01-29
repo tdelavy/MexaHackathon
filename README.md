@@ -15,7 +15,7 @@ We have designed an interactive UI for our project using Figma. This interface r
 👉 [Click here to explore the UI](https://tdelavy.github.io/MexaHackathon/)
 
 ------------
-### Features
+### New Features
 
 *1. Memory-Enabled Chatbot*
 
