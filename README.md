@@ -10,6 +10,7 @@ In this hackathon, we are taking this idea further by enhancing the chatbot wi
 
 ### 🔗 User Interface (Figma)
 We have designed an interactive UI for our project using Figma. This interface represents how users will interact with the tool visually.
+
 👉 [Click here to explore the UI](https://tdelavy.github.io/MexaHackathon/)
 
 ### Features
