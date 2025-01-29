@@ -446,10 +446,6 @@ if uploaded_file is not None:
         # Display existing chat messages
         display_chat(st.session_state['messages'], chat_container)
 
-	full_context = "\n".join(
-		f"{msg['role'].capitalize()}: {msg['content']}" for msg in st.session_state['messages']
-	)
-
         # Callback function for handling user input
         def handle_user_input():
             user_message = st.session_state['user_input']
@@ -457,6 +453,10 @@ if uploaded_file is not None:
                 # Append the user's message to the conversation
                 st.session_state['messages'].append({'role': 'user', 'content': user_message})
                 st.session_state['new_user_messages'].append(user_message)
+
+                full_context = "\n".join(
+                        f"{msg['role'].capitalize()}: {msg['content']}" for msg in st.session_state['messages']
+                )
 
                 if user_message.lower() == "done":
                     # When the user finishes providing input, send everything to Gemini
