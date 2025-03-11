@@ -20,7 +20,7 @@ import base64
 st.set_page_config(layout="wide", page_title="Analysis & Chatbot", page_icon="🤖")
 
 # Configure the Gemini API key
-genai.configure(api_key="AIzaSyD2d-LH2uLMRQwNFBiN9AQwLpO1CgiDfRw")
+genai.configure(api_key="AIzaSyAtFNyxxcYQOm3rFC2xqG4el6DD4ftAq9c")
 
 # Questionnaire and scoring instructions
 questionnaire = """
