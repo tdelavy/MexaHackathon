@@ -131,7 +131,7 @@ Run the Streamlit app (from the link to the app or locally)
 
 - Click the “Browse files” button and select a .wav audio file from your device.
 
-- (6 example audio files are already present in the project directory in github for demonstration purposes.)
+- (6 example audio files are already present in the project directory in github for demonstration purposes. Upload these audios to use them)
 
 ***3. Process and Analyze***
 
