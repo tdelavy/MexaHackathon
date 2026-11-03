@@ -4,8 +4,8 @@
 
 ### Overview
 
-To use this model, please add your Gemini API key on line , here: 
-# Configure the Gemini API key
+To use this model, please add your Gemini API key inside Gemini.py, here: 
+Configure the Gemini API key
 genai.configure(api_key="ADD/YOUR/API/KEY")
 
 The Post-Natal Depression Analysis Tool originated from our previous hackathon, where we developed a Streamlit-based web application to help identify and analyze postnatal depression through audio input. 
